@@ -1,0 +1,71 @@
+{
+  "name": "repo-graph",
+  "displayName": "Repo Graph",
+  "description": "Interactive static-analysis graph of your repository's code structure.",
+  "version": "0.1.0",
+  "publisher": "repo-graph",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.70.0"
+  },
+  "categories": [
+    "Visualization",
+    "Other"
+  ],
+  "main": "./dist/extension.js",
+  "activationEvents": [
+    "onCommand:repoGraph.showGraph"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "repoGraph.showGraph",
+        "title": "Show Repo Graph"
+      }
+    ],
+    "configuration": {
+      "title": "Repo Graph",
+      "properties": {
+        "repoGraph.maxFiles": {
+          "type": "number",
+          "default": 2000,
+          "description": "Maximum number of files to parse before stopping."
+        },
+        "repoGraph.exclude": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "**/node_modules/**",
+            "**/.git/**",
+            "**/dist/**",
+            "**/out/**",
+            "**/.venv/**",
+            "**/venv/**",
+            "**/__pycache__/**"
+          ],
+          "description": "Glob patterns to exclude from the file walk."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "build": "node esbuild.mjs",
+    "watch": "node esbuild.mjs --watch",
+    "pipeline-test": "node esbuild.mjs && node scripts/pipeline-test.mjs",
+    "package": "vsce package"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/vscode": "^1.70.0",
+    "esbuild": "^0.24.0",
+    "typescript": "^5.5.0"
+  },
+  "dependencies": {
+    "cytoscape": "^3.30.0",
+    "cytoscape-fcose": "^2.2.0",
+    "tree-sitter-wasms": "^0.1.11",
+    "web-tree-sitter": "^0.25.0"
+  }
+}
