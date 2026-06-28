@@ -20,8 +20,11 @@ packaged `.vsix`.
    Clicking a node fills the **breadcrumb** bar (file ▸ class ▸ method); click a
    crumb to recenter on that ancestor. Search highlights matches, auto-expands to
    reveal them, and dims the rest. Hovering a node spotlights its neighborhood.
-   Selecting a function, method, or class opens a side panel with its exact
-   source lines (read on demand from disk).
+   Definition nodes are numbered per file in reading order (top-to-bottom by
+   source line), so `1.`, `2.`, `3.` follow the order they appear in the code.
+   Selecting a function, method, or class opens a source panel **beside** the
+   graph (the canvas shrinks to make room rather than being overlapped) showing
+   its exact lines, read on demand from disk.
 
 ## Develop
 
@@ -48,7 +51,7 @@ Extension Host (Node):  FileWalker → LanguageRegistry/QueryRunner →
                         → RepoGraph (JSON)
         postMessage ↓
 Webview (browser):      GraphAdapter → CytoscapeManager (compound nesting,
-                        collapse/expand, cose layout)
+                        collapse/expand, fcose force-directed layout)
 ```
 
 - Containment is shown via Cytoscape **compound nesting** (the `parent` field),
@@ -76,4 +79,4 @@ Webview (browser):      GraphAdapter → CytoscapeManager (compound nesting,
 ## Tech
 
 `web-tree-sitter` 0.25 · `tree-sitter-wasms` grammars (python/javascript/typescript/tsx) ·
-`cytoscape` 3 · `esbuild` (dual host + webview bundle).
+`cytoscape` 3 + `cytoscape-fcose` (force-directed layout) · `esbuild` (dual host + webview bundle).
