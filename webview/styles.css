@@ -44,21 +44,76 @@ body {
   background: var(--vscode-button-secondaryHoverBackground, #45494e);
 }
 
-#imports-toggle-wrap {
+#imports-toggle-wrap,
+#calls-toggle-wrap {
   display: inline-flex;
   align-items: center;
   gap: 4px;
   cursor: pointer;
 }
 
+#search {
+  background: var(--vscode-input-background, #3c3c3c);
+  color: var(--vscode-input-foreground, #ccc);
+  border: 1px solid var(--vscode-input-border, transparent);
+  border-radius: 2px;
+  padding: 3px 6px;
+  font-size: 12px;
+  width: 140px;
+}
+
 #status {
   margin-left: auto;
   opacity: 0.7;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 40%;
+}
+
+#breadcrumb {
+  position: absolute;
+  top: 34px;
+  left: 0;
+  right: 0;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 0 10px;
+  overflow-x: auto;
+  white-space: nowrap;
+  background: var(--vscode-editorGroupHeader-tabsBackground, var(--vscode-editor-background));
+  border-bottom: 1px solid var(--vscode-panel-border, rgba(128, 128, 128, 0.25));
+  z-index: 9;
+  font-size: 11px;
+}
+
+#breadcrumb .crumb {
+  background: transparent;
+  border: none;
+  color: var(--vscode-textLink-foreground, #4daafc);
+  cursor: pointer;
+  padding: 2px 4px;
+  font-size: 11px;
+  border-radius: 2px;
+}
+
+#breadcrumb .crumb:hover {
+  background: var(--vscode-toolbar-hoverBackground, rgba(128, 128, 128, 0.2));
+}
+
+#breadcrumb .crumb-sep {
+  opacity: 0.5;
+}
+
+#breadcrumb .crumb-hint {
+  opacity: 0.5;
 }
 
 #cy {
   position: absolute;
-  top: 34px;
+  top: 60px;
   left: 0;
   right: 0;
   bottom: 0;

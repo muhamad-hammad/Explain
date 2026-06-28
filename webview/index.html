@@ -26,8 +26,10 @@
         <input type="checkbox" id="calls-toggle" />
         calls ⓘ
       </label>
+      <input type="search" id="search" placeholder="search nodes…" title="Highlight nodes whose name contains this text" />
       <span id="status"></span>
     </div>
+    <nav id="breadcrumb" aria-label="Selected node path"></nav>
     <div id="cy"></div>
     <script nonce="${nonce}" src="${scriptUri}"></script>
   </body>
