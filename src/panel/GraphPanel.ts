@@ -1,6 +1,3 @@
-// Manages the WebviewPanel lifecycle and the postMessage protocol with the
-// webview. One panel per window (singleton).
-
 import * as vscode from 'vscode';
 import { promises as fs } from 'node:fs';
 import * as path from 'node:path';
@@ -101,10 +98,6 @@ export class GraphPanel {
         break;
       case 'requestRefresh':
         void this.refresh();
-        break;
-      case 'nodeExpand':
-      case 'nodeCollapse':
-        // Expand/collapse is handled client-side; no host round-trip needed.
         break;
     }
   }

@@ -36,7 +36,6 @@ export class NodeBuilder {
       lineRange: null,
       parentId: null,
       language: file.language,
-      collapsed: true,
     };
 
     const defs = captures.filter(
@@ -97,7 +96,6 @@ export class NodeBuilder {
         lineRange: { start: c.startLine, end: c.endLine },
         parentId,
         language: file.language,
-        collapsed: true,
       });
       defIndex.push({ tsNodeId: c.node.id, graphId: id, name: c.name, type });
     }
