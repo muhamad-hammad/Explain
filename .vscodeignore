@@ -5,10 +5,14 @@ webview/**
 out/**
 out-webview/**
 node_modules/**
+!node_modules/web-tree-sitter/**
+node_modules/web-tree-sitter/**/*.map
 queries/**
 grammars/**
 scripts/**
+test/**
 dist/pipeline-entry.cjs
+dist/tests.cjs
 **/*.ts
 **/*.map
 **/tsconfig*.json

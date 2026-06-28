@@ -12,6 +12,18 @@
     "Visualization",
     "Other"
   ],
+  "keywords": [
+    "graph",
+    "visualization",
+    "code structure",
+    "tree-sitter",
+    "python",
+    "typescript"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/repo-graph/repo-graph"
+  },
   "main": "./dist/extension.js",
   "activationEvents": [
     "onCommand:repoGraph.showGraph"
@@ -51,14 +63,17 @@
     }
   },
   "scripts": {
+    "vscode:prepublish": "npm run build",
     "build": "node esbuild.mjs",
     "watch": "node esbuild.mjs --watch",
     "pipeline-test": "node esbuild.mjs && node scripts/pipeline-test.mjs",
+    "test": "node esbuild.mjs && node test/run.mjs",
     "package": "vsce package"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
     "@types/vscode": "^1.70.0",
+    "@vscode/vsce": "^3.9.2",
     "esbuild": "^0.24.0",
     "typescript": "^5.5.0"
   },
