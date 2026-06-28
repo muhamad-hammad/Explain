@@ -20,6 +20,8 @@ packaged `.vsix`.
    Clicking a node fills the **breadcrumb** bar (file ▸ class ▸ method); click a
    crumb to recenter on that ancestor. Search highlights matches, auto-expands to
    reveal them, and dims the rest. Hovering a node spotlights its neighborhood.
+   Selecting a function, method, or class opens a side panel with its exact
+   source lines (read on demand from disk).
 
 ## Develop
 
