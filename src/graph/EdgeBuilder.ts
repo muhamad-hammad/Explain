@@ -1,5 +1,3 @@
-// Builds 'contains' edges from parent/child GraphNode relationships.
-
 import { GraphEdge, GraphNode } from '../shared/types';
 
 export class EdgeBuilder {

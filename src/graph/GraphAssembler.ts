@@ -1,5 +1,4 @@
-// Pure (vscode-free) orchestrator: parse files -> nodes/edges -> RepoGraph.
-// Kept separate from GraphBuilder so the analysis pipeline can run headless.
+// Pure (vscode-free) orchestrator so the analysis pipeline can run headless.
 
 import { Parser, Language } from 'web-tree-sitter';
 import { RepoGraph, GraphNode, GraphEdge } from '../shared/types';

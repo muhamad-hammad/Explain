@@ -1,6 +1,3 @@
-// vscode-facing orchestrator: walk the workspace, read file contents, drive the
-// pure GraphAssembler with a progress notification, and return a RepoGraph.
-
 import * as vscode from 'vscode';
 import { promises as fs } from 'node:fs';
 import * as path from 'node:path';
