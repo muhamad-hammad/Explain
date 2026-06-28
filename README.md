@@ -14,7 +14,10 @@ v1 file/class/function nodes + `contains`/`imports`, plus naive `calls` edges.
 2. Run **Show Repo Graph** from the Command Palette (`repoGraph.showGraph`).
 3. The graph opens collapsed to file-level nodes. Click a file (or class) node to
    expand its children. Use the toolbar to **Refresh**, **Expand all**,
-   **Collapse all**, or toggle **imports** edges.
+   **Collapse all**, toggle **imports**/**calls** edges, or **search** by name.
+   Clicking a node fills the **breadcrumb** bar (file ▸ class ▸ method); click a
+   crumb to recenter on that ancestor. Search highlights matches, auto-expands to
+   reveal them, and dims the rest. Hovering a node spotlights its neighborhood.
 
 ## Develop
 
