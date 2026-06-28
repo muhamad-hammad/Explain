@@ -1,6 +1,6 @@
 import './styles.css';
 import { CytoscapeManager, BreadcrumbItem, ViewState } from './CytoscapeManager';
-import type { ExtensionToWebviewMessage, WebviewToExtensionMessage } from '../src/shared/types';
+import type { ExtensionToWebviewMessage, WebviewToExtensionMessage, CodeSnippet } from '../src/shared/types';
 
 interface VsCodeApi {
   postMessage(msg: WebviewToExtensionMessage): void;
@@ -64,8 +64,40 @@ function renderBreadcrumb(path: BreadcrumbItem[]): void {
   });
 }
 
+const snippetEl = document.getElementById('snippet');
+const snippetTitle = document.getElementById('snippet-title');
+const snippetCode = document.querySelector('#snippet-code code');
+
+function showSnippet(s: CodeSnippet): void {
+  if (!snippetEl || !snippetTitle || !snippetCode) {
+    return;
+  }
+  snippetTitle.textContent = `${s.label} · ${s.relPath}:${s.startLine}-${s.endLine}`;
+  snippetCode.textContent = s.code;
+  snippetEl.hidden = false;
+}
+
+function hideSnippet(): void {
+  if (snippetEl) {
+    snippetEl.hidden = true;
+  }
+}
+
+document.getElementById('snippet-close')?.addEventListener('click', hideSnippet);
+
+// Selecting a definition node requests its source; selecting a file clears it.
+function handleSelect(path: BreadcrumbItem[]): void {
+  renderBreadcrumb(path);
+  const selected = path[path.length - 1];
+  if (selected && selected.type !== 'file') {
+    post({ type: 'requestSnippet', nodeId: selected.id });
+  } else {
+    hideSnippet();
+  }
+}
+
 const manager = new CytoscapeManager(container, {
-  onSelect: renderBreadcrumb,
+  onSelect: handleSelect,
   onStateChange: saveState,
 });
 renderBreadcrumb([]);
@@ -109,6 +141,9 @@ window.addEventListener('message', (event: MessageEvent<ExtensionToWebviewMessag
       setStatus(`${files} files · ${nodes.length} nodes · ${edges.length} edges`);
       break;
     }
+    case 'snippet':
+      showSnippet(msg.payload);
+      break;
     case 'error':
       setStatus(msg.payload);
       break;
