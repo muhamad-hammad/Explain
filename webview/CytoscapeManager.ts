@@ -14,6 +14,13 @@ function themeColor(name: string, fallback: string): string {
   return v || fallback;
 }
 
+/** One step in a node's ancestor path (file ▸ class ▸ method). */
+export interface BreadcrumbItem {
+  id: string;
+  label: string;
+  type: string;
+}
+
 export class CytoscapeManager {
   private cy: Core;
   /** Node IDs whose children are currently shown. Files collapsed by default. */
@@ -21,7 +28,10 @@ export class CytoscapeManager {
   private importsVisible = true;
   private callsVisible = false;
 
-  constructor(container: HTMLElement) {
+  constructor(
+    container: HTMLElement,
+    private readonly onSelect?: (path: BreadcrumbItem[]) => void
+  ) {
     this.cy = cytoscape({
       container,
       style: this.buildStyle(),
@@ -32,6 +42,7 @@ export class CytoscapeManager {
 
     this.cy.on('tap', 'node', (evt) => {
       const node = evt.target as NodeSingular;
+      this.select(node);
       if (node.isParent()) {
         this.toggle(node.id());
       }
@@ -55,7 +66,8 @@ export class CytoscapeManager {
     });
     this.expanded.clear();
     this.applyVisibility();
-    this.relayout(true);
+    this.relayout(true, false, true); // instant, randomized first render
+    this.onSelect?.([]);
   }
 
   expandAll(): void {
@@ -65,13 +77,53 @@ export class CytoscapeManager {
       }
     });
     this.applyVisibility();
-    this.relayout(true);
+    this.relayout(true, true, true);
   }
 
   collapseAll(): void {
     this.expanded.clear();
     this.applyVisibility();
-    this.relayout(true);
+    this.relayout(true, true, true);
+  }
+
+  /** Highlight a node by id, expand to reveal it, center the viewport on it. */
+  centerOn(id: string): void {
+    const node = this.cy.getElementById(id);
+    if (node.empty()) {
+      return;
+    }
+    this.expandAncestors(id);
+    this.applyVisibility();
+    this.relayout(false, false);
+    this.select(node);
+    this.cy.animate({ center: { eles: node }, zoom: Math.max(this.cy.zoom(), 0.8) }, { duration: 400 });
+  }
+
+  /** Substring search: reveal + highlight matching nodes, dim the rest. */
+  search(term: string): void {
+    this.cy.elements().removeClass('search-hit search-dim');
+    const t = term.trim().toLowerCase();
+    if (!t) {
+      return;
+    }
+    const matches = this.cy
+      .nodes()
+      .filter((n) => String(n.data('label')).toLowerCase().includes(t));
+    if (matches.empty()) {
+      this.cy.nodes().addClass('search-dim');
+      return;
+    }
+    // Reveal matches that are nested inside collapsed containers.
+    matches.forEach((n) => this.expandAncestors(n.id()));
+    this.applyVisibility();
+    this.relayout(false, false);
+
+    this.cy.batch(() => {
+      this.cy.elements().addClass('search-dim');
+      matches.union(matches.ancestors()).removeClass('search-dim');
+      matches.addClass('search-hit');
+    });
+    this.cy.animate({ fit: { eles: matches, padding: 60 } }, { duration: 400 });
   }
 
   setImportsVisible(visible: boolean): void {
@@ -92,6 +144,35 @@ export class CytoscapeManager {
     }
     this.applyVisibility();
     this.relayout(false);
+  }
+
+  /** Mark a node selected and emit its ancestor path for the breadcrumb. */
+  private select(node: NodeSingular): void {
+    this.cy.nodes('.selected').removeClass('selected');
+    node.addClass('selected');
+    this.emitBreadcrumb(node.id());
+  }
+
+  private emitBreadcrumb(id: string): void {
+    const path: BreadcrumbItem[] = [];
+    let cur: string | undefined = id;
+    while (cur) {
+      const n = this.cy.getElementById(cur);
+      if (n.empty()) {
+        break;
+      }
+      path.unshift({ id: cur, label: String(n.data('label')), type: String(n.data('type')) });
+      cur = n.data('parent') as string | undefined;
+    }
+    this.onSelect?.(path);
+  }
+
+  private expandAncestors(id: string): void {
+    let p = this.cy.getElementById(id).data('parent') as string | undefined;
+    while (p) {
+      this.expanded.add(p);
+      p = this.cy.getElementById(p).data('parent') as string | undefined;
+    }
   }
 
   private focus(node: NodeSingular): void {
@@ -137,14 +218,16 @@ export class CytoscapeManager {
     return true;
   }
 
-  private relayout(fit: boolean): void {
+  private relayout(fit: boolean, animate = true, randomize = false): void {
     const visible = this.cy.elements(':visible');
     visible
       .layout({
         name: 'fcose',
         quality: 'default',
-        animate: false,
-        randomize: true,
+        animate,
+        animationDuration: 500,
+        animationEasing: 'ease-out',
+        randomize,
         fit,
         padding: 50,
         nodeSeparation: 90,
@@ -156,9 +239,6 @@ export class CytoscapeManager {
         packComponents: true,
       } as cytoscape.LayoutOptions)
       .run();
-    if (fit) {
-      this.cy.fit(undefined, 50);
-    }
   }
 
   private buildStyle(): cytoscape.StylesheetStyle[] {
@@ -170,6 +250,7 @@ export class CytoscapeManager {
     const fnColor = themeColor('--vscode-charts-green', '#89d185');
     const methodColor = themeColor('--vscode-charts-purple', '#b180d7');
     const importColor = themeColor('--vscode-charts-foreground', '#8a8a8a');
+    const hitColor = themeColor('--vscode-charts-yellow', '#e2c08d');
 
     // Degree -> diameter mapping for leaf nodes (Logseq-style sizing).
     const sizeByDegree = 'mapData(deg, 0, 10, 14, 46)';
@@ -259,6 +340,26 @@ export class CytoscapeManager {
       {
         selector: 'edge.focus',
         style: { width: 2, 'line-opacity': 1, 'line-color': fileColor, 'target-arrow-color': fileColor },
+      },
+      // Selection (breadcrumb / centerOn target).
+      {
+        selector: 'node.selected',
+        style: { 'border-width': 3, 'border-color': fileColor, 'border-opacity': 1 },
+      },
+      // Search states.
+      {
+        selector: '.search-dim',
+        style: { opacity: 0.08 },
+      },
+      {
+        selector: 'node.search-hit',
+        style: {
+          'border-width': 3,
+          'border-color': hitColor,
+          'border-opacity': 1,
+          'font-weight': 'bold',
+          'z-index': 100,
+        },
       },
     ];
   }
