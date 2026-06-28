@@ -43,6 +43,7 @@ export class CytoscapeManager {
   private renderEdges: GraphEdge[] = []; // non-contains edges (imports/calls)
   private edgesByEndpoint = new Map<string, GraphEdge[]>();
   private degreeById = new Map<string, number>();
+  private orderById = new Map<string, number>(); // per-file reading order (1-based)
 
   // What currently exists in the Cytoscape instance.
   private added = new Set<string>();
@@ -212,6 +213,7 @@ export class CytoscapeManager {
     this.childrenByParent.clear();
     this.edgesByEndpoint.clear();
     this.degreeById.clear();
+    this.orderById.clear();
     this.renderEdges = [];
 
     for (const node of graph.nodes) {
@@ -224,6 +226,25 @@ export class CytoscapeManager {
           this.childrenByParent.set(node.parentId, [node]);
         }
       }
+    }
+
+    // Number definitions in reading order: per file, top-to-bottom by start line.
+    const defsByFile = new Map<string, GraphNode[]>();
+    for (const node of this.nodeById.values()) {
+      if (!node.lineRange) {
+        continue; // file nodes carry no range and stay unnumbered
+      }
+      const fileId = this.fileRootOf(node.id);
+      const arr = defsByFile.get(fileId);
+      if (arr) {
+        arr.push(node);
+      } else {
+        defsByFile.set(fileId, [node]);
+      }
+    }
+    for (const defs of defsByFile.values()) {
+      defs.sort((a, b) => a.lineRange!.start - b.lineRange!.start);
+      defs.forEach((n, i) => this.orderById.set(n.id, i + 1));
     }
 
     for (const edge of graph.edges) {
@@ -243,11 +264,12 @@ export class CytoscapeManager {
     if (this.added.has(node.id)) {
       return;
     }
+    const order = this.orderById.get(node.id);
     this.cy.add({
       group: 'nodes',
       data: {
         id: node.id,
-        label: node.label,
+        label: order ? `${order}. ${node.label}` : node.label,
         type: node.type,
         parent: node.parentId ?? undefined,
         deg: this.degreeById.get(node.id) ?? 0,
@@ -308,6 +330,14 @@ export class CytoscapeManager {
         this.ensureChildren(chain[i]);
       }
     }
+  }
+
+  private fileRootOf(id: string): string {
+    let cur: GraphNode | undefined = this.nodeById.get(id);
+    while (cur && cur.parentId) {
+      cur = this.nodeById.get(cur.parentId);
+    }
+    return cur ? cur.id : id;
   }
 
   private depth(id: string): number {
