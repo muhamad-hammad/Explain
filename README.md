@@ -5,7 +5,7 @@ VSCode. Parses Python and JavaScript/TypeScript via `web-tree-sitter` (WASM) and
 renders file → class → function nesting plus `imports` edges in a Cytoscape
 webview. No AI, no runtime instrumentation — pure static analysis.
 
-At the **v3** milestone (Sprints 0–10 of [implementation/SPRINTS.md](implementation/SPRINTS.md)):
+At the **v3** milestone (Sprints 0–10):
 file/class/function nodes + `contains`/`imports`/naive `calls` edges, drill-down
 navigation (search, breadcrumb), persisted view state, lazy rendering, and a
 packaged `.vsix`.
