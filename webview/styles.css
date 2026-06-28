@@ -45,6 +45,60 @@ body {
   background: var(--vscode-button-secondaryHoverBackground, #45494e);
 }
 
+/* Export dropdown: a <details> styled as a toolbar button + popover list. */
+#export-menu {
+  position: relative;
+}
+
+#export-menu > summary {
+  list-style: none;
+  background: var(--vscode-button-secondaryBackground, #3a3d41);
+  color: var(--vscode-button-secondaryForeground, #fff);
+  padding: 4px 10px;
+  cursor: pointer;
+  border-radius: 2px;
+  font-size: 12px;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+#export-menu > summary::-webkit-details-marker {
+  display: none;
+}
+
+#export-menu > summary:hover {
+  background: var(--vscode-button-secondaryHoverBackground, #45494e);
+}
+
+#export-menu .menu-list {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  min-width: 160px;
+  padding: 4px;
+  background: var(--vscode-dropdown-background, var(--vscode-menu-background, #252526));
+  border: 1px solid var(--vscode-dropdown-border, var(--vscode-panel-border, rgba(128, 128, 128, 0.35)));
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+  z-index: 20;
+}
+
+#export-menu .menu-list button {
+  background: transparent;
+  color: var(--vscode-menu-foreground, var(--vscode-foreground));
+  text-align: left;
+  padding: 5px 8px;
+  border-radius: 2px;
+  white-space: nowrap;
+}
+
+#export-menu .menu-list button:hover {
+  background: var(--vscode-menu-selectionBackground, var(--vscode-list-activeSelectionBackground, #094771));
+  color: var(--vscode-menu-selectionForeground, var(--vscode-list-activeSelectionForeground, #fff));
+}
+
 #imports-toggle-wrap,
 #calls-toggle-wrap {
   display: inline-flex;

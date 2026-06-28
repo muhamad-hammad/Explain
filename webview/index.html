@@ -15,6 +15,15 @@
       <button type="button" id="refresh" title="Re-parse the repository">Refresh</button>
       <button type="button" id="expand-all" title="Expand every file node">Expand all</button>
       <button type="button" id="collapse-all" title="Collapse every file node">Collapse all</button>
+      <details id="export-menu">
+        <summary title="Export the graph as a PDF or PNG">Export ▾</summary>
+        <div class="menu-list">
+          <button type="button" data-format="pdf" data-scope="view">PDF — current view</button>
+          <button type="button" data-format="pdf" data-scope="full">PDF — whole graph</button>
+          <button type="button" data-format="png" data-scope="view">PNG — current view</button>
+          <button type="button" data-format="png" data-scope="full">PNG — whole graph</button>
+        </div>
+      </details>
       <label id="imports-toggle-wrap">
         <input type="checkbox" id="imports-toggle" checked />
         imports
